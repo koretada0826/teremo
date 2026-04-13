@@ -1,3 +1,39 @@
+import { useState, useEffect, useRef } from 'react';
+
+function PriceCountUp() {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          const target = 14;
+          const duration = 1200;
+          const steps = 28;
+          let current = 0;
+          const timer = setInterval(() => {
+            current++;
+            if (current >= target) {
+              setCount(target);
+              clearInterval(timer);
+            } else {
+              setCount(current);
+            }
+          }, duration / steps);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return <span ref={ref}>{count}</span>;
+}
+
 export default function Pricing() {
   const checks = [
     '月間4,700コール保証',
@@ -18,7 +54,7 @@ export default function Pricing() {
 
         <div className="fade-in bg-white border-2 border-[#e5e5e5] rounded-[24px] p-8 sm:p-12 lg:p-16 max-w-[960px] mx-auto">
           {/* === 価格パネル (シンプル/HP統一) === */}
-          <div className="relative max-w-[760px] mx-auto mb-10 text-left">
+          <div className="relative max-w-[760px] mx-auto mb-10 text-center">
             {/* SALES POINT風ラベル + ライン */}
             <div className="flex items-center gap-3 mb-5">
               <span className="text-[11px] sm:text-[12px] font-black text-[#f55f00] tracking-[0.3em]">
@@ -30,21 +66,18 @@ export default function Pricing() {
               </span>
             </div>
 
-            {/* 価格本体 */}
-            <div className="flex items-end gap-3 sm:gap-5 mb-4">
-              {/* 大きな数字 */}
+            {/* 価格本体 - 中央配置 */}
+            <div className="flex items-end justify-center gap-3 sm:gap-5 mb-2">
               <span
-                className="text-[140px] sm:text-[180px] lg:text-[210px] font-black leading-[0.82] text-black tracking-tight"
-                style={{ fontFamily: '"M PLUS 1p", sans-serif' }}
+                className="text-[100px] sm:text-[130px] lg:text-[160px] font-black leading-[0.85] text-black tracking-tight relative"
+                style={{ fontFamily: '"Noto Sans JP", sans-serif' }}
               >
-                14
+                <PriceCountUp />
               </span>
-
-              {/* 万円 */}
               <div className="flex flex-col items-start pb-3 sm:pb-4">
                 <span
                   className="text-[34px] sm:text-[46px] lg:text-[54px] font-black leading-none text-[#f55f00]"
-                  style={{ fontFamily: '"M PLUS 1p", sans-serif' }}
+                  style={{ fontFamily: '"Noto Sans JP", sans-serif' }}
                 >
                   万円
                 </span>
@@ -52,29 +85,33 @@ export default function Pricing() {
                   /&nbsp;月
                 </span>
               </div>
+            </div>
 
-              {/* 比較 (右) */}
-              <div className="ml-auto pb-3 sm:pb-5 text-right hidden sm:block">
-                <p className="text-[10px] font-black text-[#999] tracking-[0.25em] mb-1">
-                  他社平均
-                </p>
-                <p className="text-[18px] sm:text-[22px] font-bold text-[#bbb] line-through leading-none">
-                  30〜80万円
-                </p>
-                <div className="flex items-center justify-end gap-1.5 mt-2">
-                  <span className="text-[#f55f00] text-[14px] leading-none">↓</span>
-                  <p className="text-[11px] font-black text-black tracking-[0.15em] leading-none">
-                    約&nbsp;<span className="text-[#f55f00] text-[14px]">1/4</span>&nbsp;のコスト
-                  </p>
-                </div>
-              </div>
+            {/* お洒落な装飾線 */}
+            <div className="flex items-center justify-center gap-3 mb-5">
+              <div className="h-[1px] w-[60px] bg-gradient-to-r from-transparent to-[#f55f00]" />
+              <div className="w-[8px] h-[8px] rounded-full border-2 border-[#f55f00]" />
+              <div className="h-[2px] w-[100px] bg-[#f55f00]" />
+              <div className="w-[8px] h-[8px] rounded-full border-2 border-[#f55f00]" />
+              <div className="h-[1px] w-[60px] bg-gradient-to-l from-transparent to-[#f55f00]" />
+            </div>
+
+            {/* 他社比較 - 価格の下に中央配置 */}
+            <div className="hidden sm:flex items-center justify-center gap-4 mb-4">
+              <p className="text-[16px] sm:text-[18px] font-bold text-[#bbb] line-through leading-none">
+                他社平均 30〜80万円
+              </p>
+              <span className="text-[#f55f00] text-[16px] leading-none">→</span>
+              <p className="text-[13px] font-black text-black tracking-[0.1em] leading-none">
+                約&nbsp;<span className="text-[#f55f00] text-[18px]">1/4</span>&nbsp;のコスト
+              </p>
             </div>
 
             {/* 下部アクセント（SALES POINTカード共通グラデーション線） */}
             <div className="h-[3px] bg-gradient-to-r from-[#f55f00] via-[#f55f00]/40 to-transparent mb-3" />
 
             {/* 補足注釈 */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
               <span className="text-[11px] sm:text-[12px] text-[#666]">
                 <span className="text-[#f55f00] mr-1">/</span>4,700 コール込
               </span>

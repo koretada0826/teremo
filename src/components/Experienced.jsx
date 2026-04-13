@@ -115,14 +115,6 @@ const painPoints = [
   },
 ];
 
-const comparisons = [
-  { item: '月額費用',   a: { v: '30〜50万円', bad: true },     b: { v: '50〜80万円', bad: true },     t: '14万円' },
-  { item: 'コール数',   a: { v: '非公開', bad: true },        b: { v: '月2,000コール〜', bad: true }, t: '4,700コール保証' },
-  { item: 'ログ開示',   a: { v: 'サマリーのみ', bad: true },    b: { v: '一部のみ', bad: true },       t: '全コール100%開示' },
-  { item: '初期費用',   a: { v: '10〜20万円', bad: true },     b: { v: '20〜30万円', bad: true },     t: '0円' },
-  { item: '契約期間',   a: { v: '3ヶ月縛り', bad: true },      b: { v: '6ヶ月縛り', bad: true },      t: '縛りなし' },
-  { item: 'レポート',   a: { v: '月1回PDFのみ', bad: true },   b: { v: '月1回+面談', bad: true },     t: 'リアルタイム共有' },
-];
 
 // CASE別の装飾SVG (左パネルの背景に表示) - 編集デザイン風アイコン
 const painIcons = {
@@ -512,23 +504,24 @@ export default function Experienced() {
                     </h3>
                   </div>
 
-                  {/* RED FLAGスタンプ */}
+                  {/* 警告アイコン */}
                   <div className="hidden sm:flex items-center pr-6">
-                    <div
-                      className="border-2 border-[#f55f00] text-[#f55f00] px-3 py-1.5"
-                      style={{ transform: 'rotate(-6deg)' }}
-                    >
-                      <p className="text-[10px] font-black tracking-[0.25em] leading-none">RED FLAG</p>
-                      <p className="text-[9px] font-bold tracking-[0.15em] leading-none mt-1 text-[#f55f00]/80">要 注 意</p>
+                    <div className="flex items-center gap-2 bg-[#f55f00] rounded-full px-4 py-1.5">
+                      <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2 L19 17 H1 Z" fill="#fff" />
+                        <rect x="9" y="8" width="2" height="5" fill="#f55f00" />
+                        <circle cx="10" cy="15" r="1" fill="#f55f00" />
+                      </svg>
+                      <span className="text-[11px] font-black text-white tracking-[0.1em]">要注意</span>
                     </div>
                   </div>
                 </header>
 
-                {/* === 警告ストライプ === */}
+                {/* === 薄いグラデーションライン === */}
                 <div
-                  className="h-[6px]"
+                  className="h-[3px]"
                   style={{
-                    backgroundImage: 'repeating-linear-gradient(45deg, #f55f00 0 10px, #000 10px 20px)',
+                    background: 'linear-gradient(90deg, #f55f00, #f55f00 40%, #333 40%, #333)',
                   }}
                 />
 
@@ -640,76 +633,10 @@ export default function Experienced() {
 
         {/* Punchline */}
         <div className="fade-in text-center mb-14 pt-8 sm:pt-12">
-          <h3 className="text-[24px] sm:text-[32px] font-bold text-black leading-[1.4] tracking-[0.04em]">
+          <h3 className="text-[32px] sm:text-[44px] lg:text-[52px] font-black text-black leading-[1.3] tracking-[0.02em]">
             全部、よくある話です。
           </h3>
-          <p className="text-[14px] text-[#4d4d4d] mt-3">だから私たちは、すべてを逆に設計しました。</p>
-        </div>
-
-        {/* ===== Comparison table ===== */}
-        <div className="fade-in mb-0">
-          <div className="text-center mb-5">
-            <p className="text-[11px] text-[#f55f00] tracking-[0.25em] font-bold mb-1.5">COMPARISON</p>
-            <h4 className="text-[20px] sm:text-[24px] font-black text-black tracking-[0.02em]">
-              主要3社との<span className="text-[#f55f00]">比較表</span>
-            </h4>
-          </div>
-
-          <div className="overflow-x-auto pt-3 -mx-4 sm:mx-0">
-            <table className="w-full min-w-[560px] border-separate border-spacing-0 mx-4 sm:mx-0">
-              <thead>
-                <tr>
-                  <th className="sticky left-0 bg-white py-4 px-3 text-center text-[12px] sm:text-[13px] text-[#999] font-bold tracking-[0.1em] border-b-2 border-black w-[18%]">
-                    比較項目
-                  </th>
-                  <th className="py-4 px-3 text-center border-b-2 border-[#e5e5e5] bg-[#fafafa] w-[25%]">
-                    <div className="text-[11px] text-[#999] tracking-[0.18em] font-bold mb-0.5">COMPANY</div>
-                    <div className="text-[18px] sm:text-[20px] font-black text-[#555]">A社</div>
-                  </th>
-                  <th className="py-4 px-3 text-center border-b-2 border-[#e5e5e5] bg-[#fafafa] w-[25%]">
-                    <div className="text-[11px] text-[#999] tracking-[0.18em] font-bold mb-0.5">COMPANY</div>
-                    <div className="text-[18px] sm:text-[20px] font-black text-[#555]">B社</div>
-                  </th>
-                  <th className="py-4 px-3 text-center border-b-2 border-[#f55f00] bg-[#fff4ec] w-[32%] relative">
-                    <span className="absolute -top-[11px] left-1/2 -translate-x-1/2 bg-[#f55f00] text-white text-[11px] font-bold tracking-[0.15em] px-2.5 py-[3px] rounded-[3px] whitespace-nowrap">
-                      RECOMMEND
-                    </span>
-                    <div className="text-[11px] text-[#f55f00] tracking-[0.18em] font-bold mb-0.5">OUR SERVICE</div>
-                    <div className="text-[19px] sm:text-[22px] font-black text-[#f55f00]">テレモ</div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisons.map((c, i) => (
-                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}>
-                    <td className="py-4 px-3 text-center text-[15px] sm:text-[16px] font-bold text-black border-b border-[#eee]">
-                      {c.item}
-                    </td>
-                    <td className="py-4 px-3 text-center text-[14px] sm:text-[15px] text-[#888] border-b border-[#eee]">
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="text-[#d94848] text-[14px]">✕</span>
-                        <span>{c.a.v}</span>
-                      </span>
-                    </td>
-                    <td className="py-4 px-3 text-center text-[14px] sm:text-[15px] text-[#888] border-b border-[#eee]">
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="text-[#d94848] text-[14px]">✕</span>
-                        <span>{c.b.v}</span>
-                      </span>
-                    </td>
-                    <td className="py-4 px-3 text-center text-[15px] sm:text-[16px] font-bold text-black bg-[#fff8f2] border-b border-[#ffd9bd]">
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="w-[18px] h-[18px] rounded-full bg-[#f55f00] text-white text-[10px] flex items-center justify-center shrink-0">✓</span>
-                        <span>{c.t}</span>
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <p className="text-[10px] text-[#999] mt-2 text-center">※ 他社の数値は公開情報および業界平均から算出</p>
+          <p className="text-[16px] sm:text-[18px] text-[#4d4d4d] mt-4">だから私たちは、すべてを逆に設計しました。</p>
         </div>
 
       </div>

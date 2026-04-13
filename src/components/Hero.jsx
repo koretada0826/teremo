@@ -1,3 +1,5 @@
+import { useState, useEffect, useRef } from 'react';
+
 const headingStyle = {
   fontFamily: '"M PLUS 1p", "Noto Sans JP", sans-serif',
   fontWeight: 900,
@@ -5,24 +7,99 @@ const headingStyle = {
   letterSpacing: '-0.02em',
 };
 
+const lines = [
+  { text: '結果が出ない', color: 'text-black' },
+  { text: '営業代行には', color: 'text-black' },
+  { text: 'もうお金を払わなくて良い', color: 'text-[#f55f00]' },
+];
+
+function useTypewriter(lines, charDelay = 80, lineDelay = 400) {
+  const [lineIndex, setLineIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [done, setDone] = useState(false);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    if (!started || done) return;
+
+    if (lineIndex >= lines.length) {
+      setDone(true);
+      return;
+    }
+
+    if (charIndex < lines[lineIndex].text.length) {
+      const timer = setTimeout(() => setCharIndex((c) => c + 1), charDelay);
+      return () => clearTimeout(timer);
+    } else {
+      // Line complete, pause then move to next
+      if (lineIndex < lines.length - 1) {
+        const timer = setTimeout(() => {
+          setLineIndex((l) => l + 1);
+          setCharIndex(0);
+        }, lineDelay);
+        return () => clearTimeout(timer);
+      } else {
+        setDone(true);
+      }
+    }
+  }, [lineIndex, charIndex, started, done, lines, charDelay, lineDelay]);
+
+  const getLineText = (i) => {
+    if (i < lineIndex) return lines[i].text;
+    if (i === lineIndex) return lines[i].text.slice(0, charIndex);
+    return '';
+  };
+
+  const isTypingLine = (i) => !done && i === lineIndex;
+
+  return { getLineText, isTypingLine, done, start: () => setStarted(true), started };
+}
+
 export default function Hero() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const sectionRef = useRef(null);
+  const typewriter = useTypewriter(lines, 70, 350);
+
+  // Start typewriter when hero section becomes visible
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !typewriter.started) {
+          // Small delay so user sees it start
+          setTimeout(() => typewriter.start(), 600);
+        }
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [typewriter.started]);
+
+  const handleMouseMove = (e) => {
+    const rect = sectionRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
   return (
-    <section className="relative bg-white pt-[140px] sm:pt-[180px] pb-10 sm:pb-14 overflow-hidden">
-      {/* Orange half-circles along the top edge */}
-      <div className="absolute top-0 left-0 right-0 h-[80px] z-0 overflow-hidden flex">
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i}
-            className="shrink-0 rounded-b-full bg-[#f55f00]"
-            style={{
-              width: 'calc(100% / 6)',
-              height: '160px',
-              marginTop: '-80px',
-              opacity: i % 2 === 0 ? 0.15 : 0.08,
-            }}
-          />
-        ))}
-      </div>
+    <section
+      ref={sectionRef}
+      className="relative bg-white pt-[140px] sm:pt-[180px] pb-10 sm:pb-14 overflow-hidden"
+      onMouseMove={handleMouseMove}
+    >
+      {/* Mouse-following glow - hidden on mobile */}
+      <div
+        className="absolute inset-0 z-[1] pointer-events-none hidden lg:block"
+        style={{
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(245,95,0,0.08), transparent 60%)`,
+        }}
+      />
 
       {/* Subtle dot pattern to fill white space */}
       <div
@@ -48,26 +125,27 @@ export default function Hero() {
               営業経験15年以上のプロが設計
             </p>
 
-            {/* メインコピー - 3行 + アンダーラインエフェクト */}
+            {/* メインコピー - タイプライター演出 */}
             <h1 className="fade-in mb-10 sm:mb-12 hero-heading">
-              <span
-                className="hero-line text-black"
-                style={{ ...headingStyle, fontSize: 'clamp(28px, 5.5vw, 48px)' }}
-              >
-                結果が出ない
-              </span>
-              <span
-                className="hero-line text-black"
-                style={{ ...headingStyle, fontSize: 'clamp(28px, 5.5vw, 48px)' }}
-              >
-                営業代行には
-              </span>
-              <span
-                className="hero-line text-[#f55f00]"
-                style={{ ...headingStyle, fontSize: 'clamp(28px, 5.5vw, 48px)' }}
-              >
-                もうお金を払わなくて良い
-              </span>
+              {lines.map((line, i) => (
+                <span
+                  key={i}
+                  className={`hero-line ${line.color}`}
+                  style={{ ...headingStyle, fontSize: 'clamp(28px, 5.5vw, 48px)' }}
+                >
+                  {typewriter.getLineText(i)}
+                  {typewriter.isTypingLine(i) && (
+                    <span
+                      className="inline-block w-[3px] h-[0.9em] bg-current ml-[2px] align-middle"
+                      style={{
+                        animation: 'cursor-blink 0.7s steps(1) infinite',
+                      }}
+                    />
+                  )}
+                  {/* Keep empty lines taking space with invisible char */}
+                  {!typewriter.getLineText(i) && '\u200B'}
+                </span>
+              ))}
             </h1>
 
             {/* CTAボタン */}

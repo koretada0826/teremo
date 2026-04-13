@@ -1,10 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Experienced from './components/Experienced';
 import Newcomer from './components/Newcomer';
+import ComparisonTable from './components/ComparisonTable';
 import Flow from './components/Flow';
 import Pricing from './components/Pricing';
+import FAQ from './components/FAQ';
+import ConsultationCTA from './components/ConsultationCTA';
 import StepForm from './components/StepForm';
 import DocumentRequest from './components/DocumentRequest';
 import FinalCTA from './components/FinalCTA';
@@ -12,6 +15,14 @@ import FixedCTA from './components/FixedCTA';
 import Footer from './components/Footer';
 
 export default function App() {
+  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
+
+  useEffect(() => {
+    const onMove = (e) => setCursorPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', onMove, { passive: true });
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
   useEffect(() => {
     const io = new IntersectionObserver(
       (entries) => {
@@ -57,15 +68,22 @@ export default function App() {
       <main>
         <Hero />
         <Experienced />
+        <ComparisonTable />
         <Newcomer />
         <Flow />
         <Pricing />
+        <FAQ />
+        <ConsultationCTA />
         <StepForm />
         <DocumentRequest />
         <FinalCTA />
       </main>
       <Footer />
       <FixedCTA />
+      <div
+        className="cursor-glow"
+        style={{ left: cursorPos.x, top: cursorPos.y }}
+      />
     </>
   );
 }

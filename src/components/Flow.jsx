@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+
 const flowSteps = [
   {
     num: 'STEP 01',
@@ -22,6 +24,32 @@ const flowSteps = [
 ];
 
 export default function Flow() {
+  const [activeSteps, setActiveSteps] = useState([]);
+  const stepRefs = useRef([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.dataset.stepIndex);
+            setActiveSteps((prev) => {
+              if (prev.includes(index)) return prev;
+              return [...prev, index].sort((a, b) => a - b);
+            });
+          }
+        });
+      },
+      { threshold: 0.3, rootMargin: '0px 0px -5% 0px' }
+    );
+
+    stepRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section id="flow" className="py-16 sm:py-24 px-5 sm:px-10 bg-white">
       <div className="max-w-[1240px] mx-auto">
@@ -32,21 +60,83 @@ export default function Flow() {
           最短5営業日でコール開始
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {flowSteps.map((s, i) => (
+        {/* Timeline container */}
+        <div className="relative">
+          {/* PC: horizontal timeline line */}
+          <div className="hidden lg:block absolute top-[28px] left-[calc(12.5%+8px)] right-[calc(12.5%+8px)] h-[2px] bg-[#e5e5e5]">
             <div
-              key={i}
-              className="fade-in relative bg-[#f7f7f7] rounded-[16px] p-6"
-              style={{ transitionDelay: `${i * 0.18}s` }}
-            >
-              <p className="text-[11px] text-[#f55f00] font-bold tracking-[0.1em] mb-3">{s.num}</p>
-              <p className="text-[16px] font-bold text-black mb-2 leading-[1.4]">{s.title}</p>
-              <p className="text-[12px] text-[#4d4d4d] leading-[1.7]">{s.desc}</p>
-              {i < flowSteps.length - 1 && (
-                <span className="hidden lg:block absolute top-1/2 -right-3 text-[#f55f00] text-[18px] -translate-y-1/2">→</span>
-              )}
-            </div>
-          ))}
+              className="absolute top-0 left-0 h-full bg-[#f55f00] transition-all duration-700 ease-out"
+              style={{
+                width:
+                  activeSteps.length === 0
+                    ? '0%'
+                    : `${((Math.max(...activeSteps)) / (flowSteps.length - 1)) * 100}%`,
+              }}
+            />
+          </div>
+
+          {/* Mobile: vertical timeline line */}
+          <div className="lg:hidden absolute top-[28px] bottom-[28px] left-[15px] w-[2px] bg-[#e5e5e5]">
+            <div
+              className="absolute top-0 left-0 w-full bg-[#f55f00] transition-all duration-700 ease-out"
+              style={{
+                height:
+                  activeSteps.length === 0
+                    ? '0%'
+                    : `${((Math.max(...activeSteps)) / (flowSteps.length - 1)) * 100}%`,
+              }}
+            />
+          </div>
+
+          {/* Steps grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-0 lg:gap-4">
+            {flowSteps.map((s, i) => {
+              const isActive = activeSteps.includes(i);
+              return (
+                <div
+                  key={i}
+                  ref={(el) => (stepRefs.current[i] = el)}
+                  data-step-index={i}
+                  className="relative pl-10 lg:pl-0 py-5 lg:py-0"
+                >
+                  {/* Dot */}
+                  <div
+                    className={`
+                      absolute lg:relative
+                      left-[7px] lg:left-auto top-[28px] lg:top-auto
+                      w-[18px] h-[18px] rounded-full border-[3px]
+                      lg:mx-auto lg:mb-5
+                      transition-all duration-500 ease-out
+                      ${isActive
+                        ? 'bg-[#f55f00] border-[#f55f00] scale-110'
+                        : 'bg-white border-[#ccc] scale-100'
+                      }
+                    `}
+                  />
+
+                  {/* Card */}
+                  <div
+                    className={`
+                      bg-[#f7f7f7] rounded-[16px] p-6
+                      transition-all duration-500 ease-out
+                      ${isActive
+                        ? 'opacity-100 translate-y-0'
+                        : 'opacity-40 translate-y-2'
+                      }
+                    `}
+                  >
+                    <p className="text-[11px] text-[#f55f00] font-bold tracking-[0.1em] mb-3">
+                      {s.num}
+                    </p>
+                    <p className="text-[16px] font-bold text-black mb-2 leading-[1.4]">
+                      {s.title}
+                    </p>
+                    <p className="text-[12px] text-[#4d4d4d] leading-[1.7]">{s.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className="fade-in text-center mt-10">
